@@ -43,10 +43,12 @@ function drawViz(data) {
     var prev = i === 0 ? null : counts[i - 1];
     // Usar % del campo si existe, sino calcular
     var pct;
-    if (pcts[i] !== null && pcts[i] !== undefined) {
+    if (i === 0) {
+      pct = '100%';
+    } else if (pcts[i] !== null && pcts[i] !== undefined) {
       pct = Math.round(pcts[i] * 100) + '%';
     } else {
-      pct = i === 0 ? '100%' : Math.round((count / prev) * 100) + '%';
+      pct = Math.round((count / prev) * 100) + '%';
     }
 
     var topRatio = count / total;
