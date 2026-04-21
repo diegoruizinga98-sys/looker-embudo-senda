@@ -2,23 +2,35 @@
   "data": [
     {
       "id": "concepts",
-      "label": "Concepts",
+      "label": "Etapas del Embudo",
       "elements": [
         {
-          "id": "dimID",
-          "label": "Etapa (con número de orden)",
-          "type": "DIMENSION",
-          "options": { "min": 1, "max": 1 }
-        },
-        {
-          "id": "metricID",
-          "label": "Métrica (conteo)",
+          "id": "metric1",
+          "label": "Etapa 1 - Conteo",
           "type": "METRIC",
           "options": { "min": 1, "max": 1 }
         },
         {
-          "id": "metricPct",
-          "label": "% vs etapa anterior (opcional)",
+          "id": "metric2",
+          "label": "Etapa 2 - Conteo",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "metric3",
+          "label": "Etapa 3 - Conteo",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "metric4",
+          "label": "Etapa 4 - Conteo",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "metric5",
+          "label": "Etapa 5 - Conteo",
           "type": "METRIC",
           "options": { "min": 0, "max": 1 }
         }
