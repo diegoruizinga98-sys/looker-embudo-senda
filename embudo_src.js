@@ -15,22 +15,23 @@ function drawViz(data) {
     return;
   }
 
-  var stages = [];
-  for (var i = 0; i < row.length; i++) {
-    if (row[i] !== null && row[i] !== undefined) {
-      stages.push({
-        name: headers[i].name,
-        value: Number(row[i])
-      });
+  // Primeros 5 son conteos, siguientes 5 son porcentajes
+  var counts = [], pcts = [], names = [];
+  for (var i = 0; i < 5; i++) {
+    if (row[i] !== null && row[i] !== undefined && row[i] !== '') {
+      counts.push(Number(row[i]));
+      names.push(headers[i].name);
     }
   }
+  for (var j = 5; j < 10; j++) {
+    pcts.push(row[j] !== null && row[j] !== undefined ? Number(row[j]) : null);
+  }
 
-  var total = stages[0].value;
+  var total = counts[0];
   var colors = ['#7DC143', '#9AD65A', '#B8E47A', '#4A7C20', '#1a1a1a'];
-
   var width = dscc.getWidth();
   var height = dscc.getHeight();
-  var rowHeight = height / stages.length;
+  var rowHeight = height / counts.length;
   var leftWidth = width * 0.5;
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -38,13 +39,19 @@ function drawViz(data) {
   svg.setAttribute('height', height);
   document.body.appendChild(svg);
 
-  stages.forEach(function(stage, i) {
-    var prev = i === 0 ? null : stages[i - 1];
-    var pct = i === 0 ? 100 : Math.round((stage.value / prev.value) * 100);
+  counts.forEach(function(count, i) {
+    var prev = i === 0 ? null : counts[i - 1];
+    // Usar % del campo si existe, sino calcular
+    var pct;
+    if (pcts[i] !== null && pcts[i] !== undefined) {
+      pct = Math.round(pcts[i] * 100) + '%';
+    } else {
+      pct = i === 0 ? '100%' : Math.round((count / prev) * 100) + '%';
+    }
 
-    var topRatio = stage.value / total;
-    var nextStage = stages[i + 1];
-    var bottomRatio = nextStage ? nextStage.value / total : topRatio * 0.3;
+    var topRatio = count / total;
+    var nextCount = counts[i + 1];
+    var bottomRatio = nextCount ? nextCount / total : topRatio * 0.3;
 
     var topW = leftWidth * topRatio;
     var bottomW = leftWidth * bottomRatio;
@@ -84,7 +91,7 @@ function drawViz(data) {
     text1.setAttribute('font-size', Math.min(14, rowHeight * 0.35));
     text1.setAttribute('font-weight', 'bold');
     text1.setAttribute('font-family', 'Arial, sans-serif');
-    text1.textContent = pct + '% (' + stage.value + ')';
+    text1.textContent = pct + ' (' + count + ')';
     svg.appendChild(text1);
 
     var text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -93,7 +100,7 @@ function drawViz(data) {
     text2.setAttribute('fill', 'white');
     text2.setAttribute('font-size', Math.min(12, rowHeight * 0.28));
     text2.setAttribute('font-family', 'Arial, sans-serif');
-    text2.textContent = stage.name;
+    text2.textContent = names[i];
     svg.appendChild(text2);
   });
 }
