@@ -33,6 +33,36 @@
           "label": "Etapa 5 - Conteo",
           "type": "METRIC",
           "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "pct1",
+          "label": "Etapa 1 - % (opcional)",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "pct2",
+          "label": "Etapa 2 - % (opcional)",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "pct3",
+          "label": "Etapa 3 - % (opcional)",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "pct4",
+          "label": "Etapa 4 - % (opcional)",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
+        },
+        {
+          "id": "pct5",
+          "label": "Etapa 5 - % (opcional)",
+          "type": "METRIC",
+          "options": { "min": 0, "max": 1 }
         }
       ]
     }
