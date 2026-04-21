@@ -17,8 +17,7 @@
       "iconUrl": "https://looker-embudo-senda.storage.googleapis.com/icon.png",
       "resource": {
         "js": "gs://looker-embudo-senda/embudo.js",
-        "config": "gs://looker-embudo-senda/index.json",
-        "css": "gs://looker-embudo-senda/embudo.css"
+        "config": "gs://looker-embudo-senda/embudo.json"
       }
     }
   ]
