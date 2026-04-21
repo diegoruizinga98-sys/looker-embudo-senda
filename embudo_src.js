@@ -5,7 +5,7 @@ function drawViz(data) {
   document.body.style.margin = '0';
   document.body.style.padding = '0';
   document.body.style.fontFamily = 'Arial, sans-serif';
-  document.body.style.backgroundColor = '#f5f5f5';
+  document.body.style.backgroundColor = '#ffffff';
   document.body.style.overflow = 'hidden';
 
   var row = data.tables.DEFAULT.rows[0];
@@ -23,24 +23,30 @@ function drawViz(data) {
   var width = dscc.getWidth();
   var height = dscc.getHeight();
   var n = counts.length;
-  var rowH = height / (n + (n-1) * 0.3);
-  var gapH = rowH * 0.3;
-  var funnelW = width * 0.55;
-  var labelX = funnelW + 10;
-  var labelW = width - funnelW - 15;
-  var colors = ['#7DC143', '#8BC34A', '#9CCC65', '#4A7C20', '#1a1a1a'];
+  var circleR = height * 0.06;
+  var gapH = circleR * 2.2;
+  var totalGaps = (n - 1) * gapH;
+  var rowH = (height - totalGaps) / n;
+  var funnelW = width * 0.5;
+  var labelX = funnelW + 12;
+  var labelW = width - funnelW - 20;
+
+  // Colores verde claro a negro
+  var colors = ['#7DC143', '#5a9e2f', '#3d7a1e', '#4A7C20', '#1a1a1a'];
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', width);
   svg.setAttribute('height', height);
   document.body.appendChild(svg);
 
-  // Fondo gris para etiquetas
   counts.forEach(function(count, i) {
     var y = i * (rowH + gapH);
-    var topRatio = count / counts[0];
-    var nextCount = counts[i+1];
-    var bottomRatio = nextCount ? nextCount / counts[0] : topRatio * 0.4;
+
+    // Calcular ancho del trapecio — mínimo 15% del ancho
+    var topRatio = Math.max(0.15, count / counts[0]);
+    var nextCount = counts[i + 1];
+    var bottomRatio = nextCount ? Math.max(0.12, nextCount / counts[0]) : topRatio * 0.5;
+
     var topW = funnelW * topRatio;
     var bottomW = funnelW * bottomRatio;
     var topX = (funnelW - topW) / 2;
@@ -53,80 +59,78 @@ function drawViz(data) {
       (bottomX + bottomW) + ',' + (y + rowH),
       bottomX + ',' + (y + rowH)
     ].join(' ');
+
     var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     poly.setAttribute('points', pts);
-    poly.setAttribute('fill', colors[i] || '#7DC143');
+    poly.setAttribute('fill', colors[i] || '#1a1a1a');
     svg.appendChild(poly);
 
-    // Número grande centrado en trapecio
-    var cx = funnelW / 2;
-    var cy = y + rowH / 2;
-    var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    txt.setAttribute('x', cx);
-    txt.setAttribute('y', cy + rowH * 0.15);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('fill', 'white');
-    txt.setAttribute('font-size', Math.min(rowH * 0.5, 32));
-    txt.setAttribute('font-weight', 'bold');
-    txt.setAttribute('font-family', 'Arial, sans-serif');
-    txt.textContent = count.toLocaleString();
-    svg.appendChild(txt);
+    // Número grande centrado
+    var numTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    numTxt.setAttribute('x', funnelW / 2);
+    numTxt.setAttribute('y', y + rowH * 0.62);
+    numTxt.setAttribute('text-anchor', 'middle');
+    numTxt.setAttribute('fill', 'white');
+    numTxt.setAttribute('font-size', Math.min(rowH * 0.55, 28));
+    numTxt.setAttribute('font-weight', 'bold');
+    numTxt.setAttribute('font-family', 'Arial, sans-serif');
+    numTxt.textContent = count.toLocaleString();
+    svg.appendChild(numTxt);
 
     // Etiqueta gris derecha
     var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', labelX);
-    rect.setAttribute('y', y + rowH * 0.2);
+    rect.setAttribute('y', y + rowH * 0.15);
     rect.setAttribute('width', labelW);
-    rect.setAttribute('height', rowH * 0.6);
+    rect.setAttribute('height', rowH * 0.7);
     rect.setAttribute('fill', '#e0e0e0');
-    rect.setAttribute('rx', '4');
+    rect.setAttribute('rx', '6');
     svg.appendChild(rect);
 
     var ltxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     ltxt.setAttribute('x', labelX + labelW / 2);
-    ltxt.setAttribute('y', y + rowH * 0.58);
+    ltxt.setAttribute('y', y + rowH * 0.6);
     ltxt.setAttribute('text-anchor', 'middle');
     ltxt.setAttribute('fill', '#333');
-    ltxt.setAttribute('font-size', Math.min(rowH * 0.28, 14));
+    ltxt.setAttribute('font-size', Math.min(rowH * 0.3, 13));
     ltxt.setAttribute('font-family', 'Arial, sans-serif');
     ltxt.textContent = names[i];
     svg.appendChild(ltxt);
 
     // Círculo ratio entre etapas
     if (i > 0) {
-      var pct = Math.round((count / counts[i-1]) * 100);
+      var pct = Math.round((count / counts[i - 1]) * 100);
       var circleY = y - gapH / 2;
-      var circleX = funnelW * 0.08;
-      var r = Math.min(gapH * 0.9, rowH * 0.4);
+      var circleX = circleR * 1.5;
 
       var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('cx', circleX);
       circle.setAttribute('cy', circleY);
-      circle.setAttribute('r', r);
+      circle.setAttribute('r', circleR);
       circle.setAttribute('fill', '#7DC143');
       svg.appendChild(circle);
 
-      var ratioLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      ratioLabel.setAttribute('x', circleX);
-      ratioLabel.setAttribute('y', circleY - r * 0.1);
-      ratioLabel.setAttribute('text-anchor', 'middle');
-      ratioLabel.setAttribute('fill', 'white');
-      ratioLabel.setAttribute('font-size', Math.min(r * 0.4, 10));
-      ratioLabel.setAttribute('font-weight', 'bold');
-      ratioLabel.setAttribute('font-family', 'Arial, sans-serif');
-      ratioLabel.textContent = 'Ratio ' + names[i];
-      svg.appendChild(ratioLabel);
+      // "Ratio Visitas" en dos líneas
+      var rLine1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      rLine1.setAttribute('x', circleX);
+      rLine1.setAttribute('y', circleY - circleR * 0.25);
+      rLine1.setAttribute('text-anchor', 'middle');
+      rLine1.setAttribute('fill', 'white');
+      rLine1.setAttribute('font-size', Math.min(circleR * 0.38, 9));
+      rLine1.setAttribute('font-family', 'Arial, sans-serif');
+      rLine1.textContent = 'Ratio ' + names[i];
+      svg.appendChild(rLine1);
 
-      var ratioNum = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      ratioNum.setAttribute('x', circleX);
-      ratioNum.setAttribute('y', circleY + r * 0.45);
-      ratioNum.setAttribute('text-anchor', 'middle');
-      ratioNum.setAttribute('fill', 'white');
-      ratioNum.setAttribute('font-size', Math.min(r * 0.55, 13));
-      ratioNum.setAttribute('font-weight', 'bold');
-      ratioNum.setAttribute('font-family', 'Arial, sans-serif');
-      ratioNum.textContent = pct + '%';
-      svg.appendChild(ratioNum);
+      var rLine2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      rLine2.setAttribute('x', circleX);
+      rLine2.setAttribute('y', circleY + circleR * 0.5);
+      rLine2.setAttribute('text-anchor', 'middle');
+      rLine2.setAttribute('fill', 'white');
+      rLine2.setAttribute('font-size', Math.min(circleR * 0.55, 12));
+      rLine2.setAttribute('font-weight', 'bold');
+      rLine2.setAttribute('font-family', 'Arial, sans-serif');
+      rLine2.textContent = pct + '%';
+      svg.appendChild(rLine2);
     }
   });
 }
