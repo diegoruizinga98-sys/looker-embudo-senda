@@ -1,12 +1,10 @@
 var dscc = require('@google/dscc');
 
 function drawViz(data) {
-  // Limpiar contenido anterior
   document.body.innerHTML = '';
   document.body.style.margin = '0';
   document.body.style.padding = '0';
   document.body.style.fontFamily = 'Arial, sans-serif';
-  document.body.style.backgroundColor = '#fff';
 
   var rows = data.tables.DEFAULT.rows;
   if (!rows || rows.length === 0) {
@@ -14,11 +12,13 @@ function drawViz(data) {
     return;
   }
 
-  // Parsear etapas
+  var colors = ['#7DC143', '#9AD65A', '#B8E47A', '#4A7C20', '#1a1a1a'];
+
+  // Parsear etapas - con tableTransform cada row es array [etapa, valor]
   var stages = rows.map(function(row) {
     return {
-      name: String(row.dimID[0]),
-      value: Number(row.metricID[0])
+      name: String(row[0]),
+      value: Number(row[1])
     };
   }).sort(function(a, b) {
     var na = parseInt(a.name);
@@ -28,12 +28,10 @@ function drawViz(data) {
   });
 
   var total = stages[0].value;
-  var colors = ['#7DC143', '#9AD65A', '#B8E47A', '#4A7C20', '#1a1a1a'];
 
-  // Contenedor principal
   var container = document.createElement('div');
   container.style.width = '100%';
-  container.style.height = '100%';
+  container.style.padding = '8px';
   container.style.boxSizing = 'border-box';
   document.body.appendChild(container);
 
@@ -46,43 +44,42 @@ function drawViz(data) {
   title.style.fontWeight = 'bold';
   title.style.fontSize = '16px';
   title.style.borderRadius = '8px 8px 0 0';
+  title.style.marginBottom = '8px';
   title.innerText = 'EMBUDO DE VENTAS';
   container.appendChild(title);
 
-  // Filas del embudo
   stages.forEach(function(stage, i) {
     var prev = i === 0 ? null : stages[i - 1];
     var pct = i === 0 ? 100 : Math.round((stage.value / prev.value) * 100);
-    var widthPct = Math.round((stage.value / total) * 100);
+    var widthPct = Math.max(10, Math.round((stage.value / total) * 100));
 
     var row = document.createElement('div');
     row.style.display = 'flex';
     row.style.alignItems = 'center';
-    row.style.marginTop = '4px';
+    row.style.marginBottom = '4px';
     container.appendChild(row);
 
-    // Barra
     var barWrap = document.createElement('div');
-    barWrap.style.width = '55%';
+    barWrap.style.width = '50%';
     barWrap.style.display = 'flex';
     barWrap.style.justifyContent = 'center';
 
     var bar = document.createElement('div');
     bar.style.width = widthPct + '%';
-    bar.style.height = '40px';
+    bar.style.height = '44px';
     bar.style.backgroundColor = colors[i] || '#7DC143';
     bar.style.borderRadius = '4px';
     barWrap.appendChild(bar);
     row.appendChild(barWrap);
 
-    // Etiqueta
     var label = document.createElement('div');
-    label.style.width = '45%';
+    label.style.width = '50%';
     label.style.backgroundColor = colors[i] || '#7DC143';
     label.style.color = 'white';
-    label.style.padding = '4px 8px';
+    label.style.padding = '6px 10px';
     label.style.borderRadius = '4px';
     label.style.fontSize = '13px';
+    label.style.lineHeight = '1.4';
 
     var cleanName = stage.name.replace(/^\d+\.\s*/, '');
     label.innerHTML = '<strong>' + pct + '%</strong> (' + stage.value + ')<br>' + cleanName;
@@ -90,4 +87,4 @@ function drawViz(data) {
   });
 }
 
-dscc.subscribeToData(drawViz, { transform: dscc.objectTransform });
+dscc.subscribeToData(drawViz, { transform: dscc.tableTransform });
