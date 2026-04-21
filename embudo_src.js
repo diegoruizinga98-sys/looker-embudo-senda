@@ -20,117 +20,137 @@ function drawViz(data) {
     }
   }
 
-  var width = dscc.getWidth();
+  var width  = dscc.getWidth();
   var height = dscc.getHeight();
-  var n = counts.length;
-  var circleR = height * 0.06;
-  var gapH = circleR * 2.2;
-  var totalGaps = (n - 1) * gapH;
-  var rowH = (height - totalGaps) / n;
-  var funnelW = width * 0.5;
-  var labelX = funnelW + 12;
-  var labelW = width - funnelW - 20;
+  var n      = counts.length;
 
-  // Colores verde claro a negro
-  var colors = ['#7DC143', '#5a9e2f', '#3d7a1e', '#4A7C20', '#1a1a1a'];
+  var circleR   = height * 0.055;
+  var gapH      = circleR * 2.4;
+  var totalGaps = (n - 1) * gapH;
+  var rowH      = (height - totalGaps) / n;
+
+  var funnelW = width * 0.52;
+  var labelX  = funnelW + 14;
+  var labelW  = width - funnelW - 20;
+
+  var colors = ['#3d1f7a', '#7e5cc2', '#c4b3e0', '#e8e0f2', '#f5f0ff'];
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
+  svg.setAttribute('width',  width);
   svg.setAttribute('height', height);
   document.body.appendChild(svg);
 
   counts.forEach(function(count, i) {
-    var y = i * (rowH + gapH);
+    var y      = i * (rowH + gapH);
+    var yBot   = y + rowH;
 
-    // Calcular ancho del trapecio — mínimo 15% del ancho
-    var topRatio = Math.max(0.15, count / counts[0]);
-    var nextCount = counts[i + 1];
-    var bottomRatio = nextCount ? Math.max(0.12, nextCount / counts[0]) : topRatio * 0.5;
+    var topRatio    = Math.max(0.15, count / counts[0]);
+    var nextCount   = counts[i + 1];
+    var bottomRatio = nextCount ? Math.max(0.12, nextCount / counts[0]) : topRatio * 0.45;
 
-    var topW = funnelW * topRatio;
+    var topW    = funnelW * topRatio;
     var bottomW = funnelW * bottomRatio;
-    var topX = (funnelW - topW) / 2;
-    var bottomX = (funnelW - bottomW) / 2;
+    var topL    = (funnelW - topW)    / 2;
+    var topR    = topL + topW;
+    var botL    = (funnelW - bottomW) / 2;
+    var botR    = botL + bottomW;
+    var cx      = funnelW / 2;
 
-    // Trapecio
-    var pts = [
-      topX + ',' + y,
-      (topX + topW) + ',' + y,
-      (bottomX + bottomW) + ',' + (y + rowH),
-      bottomX + ',' + (y + rowH)
-    ].join(' ');
+    // Curva superior cóncava (control point hacia ARRIBA = y - bulge)
+    var topBulge = Math.max(6, topW * 0.07);
+    // Curva inferior convexa (control point hacia ABAJO = yBot + bulge)
+    var botBulge = Math.max(10, bottomW * 0.18);
 
-    var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    poly.setAttribute('points', pts);
-    poly.setAttribute('fill', colors[i] || '#1a1a1a');
-    svg.appendChild(poly);
+    //  M topL,y           — punto superior izquierdo
+    //  Q cx,(y-topBulge)  — arco cóncavo hacia arriba
+    //  topR,y             — punto superior derecho
+    //  L botR,yBot        — lado derecho recto
+    //  Q cx,(yBot+botBulge) — arco convexo hacia abajo
+    //  botL,yBot          — punto inferior izquierdo
+    //  Z
+    var d = 'M ' + topL + ',' + y +
+            ' Q ' + cx + ',' + (y - topBulge) + ' ' + topR + ',' + y +
+            ' L ' + botR + ',' + yBot +
+            ' Q ' + cx  + ',' + (yBot + botBulge) + ' ' + botL + ',' + yBot +
+            ' Z';
+
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d',    d);
+    path.setAttribute('fill', colors[i] || '#3d1f7a');
+    svg.appendChild(path);
 
     // Número grande centrado
+    var midY     = y + rowH / 2;
+    var fontSize = Math.max(20, Math.min(38, rowH * 0.52));
+    var numColor = (i >= 2) ? '#1f2937' : '#ffffff';
+
     var numTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    numTxt.setAttribute('x', funnelW / 2);
-    numTxt.setAttribute('y', y + rowH * 0.62);
+    numTxt.setAttribute('x',           cx);
+    numTxt.setAttribute('y',           midY + fontSize * 0.36);
     numTxt.setAttribute('text-anchor', 'middle');
-    numTxt.setAttribute('fill', 'white');
-    numTxt.setAttribute('font-size', Math.min(rowH * 0.55, 28));
+    numTxt.setAttribute('fill',        numColor);
+    numTxt.setAttribute('font-size',   fontSize);
     numTxt.setAttribute('font-weight', 'bold');
     numTxt.setAttribute('font-family', 'Arial, sans-serif');
     numTxt.textContent = count.toLocaleString();
     svg.appendChild(numTxt);
 
-    // Etiqueta gris derecha
+    // Etiqueta gris a la derecha
+    var barH = rowH * 0.55;
+    var barY = midY - barH / 2;
+
     var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', labelX);
-    rect.setAttribute('y', y + rowH * 0.15);
-    rect.setAttribute('width', labelW);
-    rect.setAttribute('height', rowH * 0.7);
-    rect.setAttribute('fill', '#e0e0e0');
-    rect.setAttribute('rx', '6');
+    rect.setAttribute('x',      labelX);
+    rect.setAttribute('y',      barY);
+    rect.setAttribute('width',  labelW);
+    rect.setAttribute('height', barH);
+    rect.setAttribute('fill',   '#e0e0e0');
+    rect.setAttribute('rx',     '5');
     svg.appendChild(rect);
 
     var ltxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ltxt.setAttribute('x', labelX + labelW / 2);
-    ltxt.setAttribute('y', y + rowH * 0.6);
+    ltxt.setAttribute('x',           labelX + labelW / 2);
+    ltxt.setAttribute('y',           midY + 5);
     ltxt.setAttribute('text-anchor', 'middle');
-    ltxt.setAttribute('fill', '#333');
-    ltxt.setAttribute('font-size', Math.min(rowH * 0.3, 13));
+    ltxt.setAttribute('fill',        '#333333');
+    ltxt.setAttribute('font-size',   Math.min(rowH * 0.28, 14));
     ltxt.setAttribute('font-family', 'Arial, sans-serif');
     ltxt.textContent = names[i];
     svg.appendChild(ltxt);
 
-    // Círculo ratio entre etapas
+    // Círculo verde de ratio (solo entre etapas, a la izquierda)
     if (i > 0) {
-      var pct = Math.round((count / counts[i - 1]) * 100);
+      var pct     = Math.round((count / counts[i - 1]) * 100);
       var circleY = y - gapH / 2;
-      var circleX = circleR * 1.5;
+      var circleX = circleR * 1.6;
 
       var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', circleX);
-      circle.setAttribute('cy', circleY);
-      circle.setAttribute('r', circleR);
+      circle.setAttribute('cx',   circleX);
+      circle.setAttribute('cy',   circleY);
+      circle.setAttribute('r',    circleR);
       circle.setAttribute('fill', '#7DC143');
       svg.appendChild(circle);
 
-      // "Ratio Visitas" en dos líneas
-      var rLine1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      rLine1.setAttribute('x', circleX);
-      rLine1.setAttribute('y', circleY - circleR * 0.25);
-      rLine1.setAttribute('text-anchor', 'middle');
-      rLine1.setAttribute('fill', 'white');
-      rLine1.setAttribute('font-size', Math.min(circleR * 0.38, 9));
-      rLine1.setAttribute('font-family', 'Arial, sans-serif');
-      rLine1.textContent = 'Ratio ' + names[i];
-      svg.appendChild(rLine1);
+      var rLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      rLabel.setAttribute('x',           circleX);
+      rLabel.setAttribute('y',           circleY - circleR * 0.18);
+      rLabel.setAttribute('text-anchor', 'middle');
+      rLabel.setAttribute('fill',        'white');
+      rLabel.setAttribute('font-size',   Math.min(circleR * 0.36, 9));
+      rLabel.setAttribute('font-family', 'Arial, sans-serif');
+      rLabel.textContent = 'Ratio ' + names[i];
+      svg.appendChild(rLabel);
 
-      var rLine2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      rLine2.setAttribute('x', circleX);
-      rLine2.setAttribute('y', circleY + circleR * 0.5);
-      rLine2.setAttribute('text-anchor', 'middle');
-      rLine2.setAttribute('fill', 'white');
-      rLine2.setAttribute('font-size', Math.min(circleR * 0.55, 12));
-      rLine2.setAttribute('font-weight', 'bold');
-      rLine2.setAttribute('font-family', 'Arial, sans-serif');
-      rLine2.textContent = pct + '%';
-      svg.appendChild(rLine2);
+      var rNum = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      rNum.setAttribute('x',           circleX);
+      rNum.setAttribute('y',           circleY + circleR * 0.52);
+      rNum.setAttribute('text-anchor', 'middle');
+      rNum.setAttribute('fill',        'white');
+      rNum.setAttribute('font-size',   Math.min(circleR * 0.52, 13));
+      rNum.setAttribute('font-weight', 'bold');
+      rNum.setAttribute('font-family', 'Arial, sans-serif');
+      rNum.textContent = pct + '%';
+      svg.appendChild(rNum);
     }
   });
 }
