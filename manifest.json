@@ -1,23 +1,20 @@
 {
   "name": "Embudo Senda",
   "organization": "Senda",
-  "description": "Embudo de ventas con forma de cuencos curvos, burbujas de ratio de conversión y etiquetas laterales.",
-  "logoUrl": "https://looker-embudo-senda.storage.googleapis.com/logo.png",
-  "organizationUrl": "https://senda.pe",
-  "supportUrl": "https://senda.pe",
-  "privacyPolicyUrl": "https://senda.pe",
-  "termsOfServiceUrl": "https://senda.pe",
-  "packageUrl": "",
+  "description": "Embudo de ventas con ratios de conversión",
+  "logoUrl": "https://storage.googleapis.com/looker-embudo-senda/icon.png",
+  "packageUrl": "https://storage.googleapis.com/looker-embudo-senda",
+  "supportUrl": "https://storage.googleapis.com/looker-embudo-senda",
   "devMode": true,
   "components": [
     {
       "id": "embudoSenda",
       "name": "Embudo Senda",
-      "description": "Embudo de ventas curvo con ratios de conversión",
-      "iconUrl": "https://looker-embudo-senda.storage.googleapis.com/icon.png",
+      "description": "Embudo de ventas curvo con ratios",
+      "iconUrl": "https://storage.googleapis.com/looker-embudo-senda/icon.png",
       "resource": {
         "js": "gs://looker-embudo-senda/embudo.js",
-        "config": "gs://looker-embudo-senda/embudo.json"
+        "config": "gs://looker-embudo-senda/index.json"
       }
     }
   ]
