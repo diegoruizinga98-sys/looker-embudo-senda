@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "id": "datos",
+      "label": "Datos del embudo",
+      "elements": [
+        {"id": "count",  "label": "Etapa 1 - Prospecto",    "type": "METRIC", "options": {"min": 1, "max": 1}},
+        {"id": "count2", "label": "Etapa 2 - Proformas",    "type": "METRIC", "options": {"min": 0, "max": 1}},
+        {"id": "count3", "label": "Etapa 3 - Visitas",      "type": "METRIC", "options": {"min": 0, "max": 1}},
+        {"id": "count4", "label": "Etapa 4 - Separaciones", "type": "METRIC", "options": {"min": 0, "max": 1}},
+        {"id": "count5", "label": "Etapa 5 - Ventas",       "type": "METRIC", "options": {"min": 0, "max": 1}}
+      ]
+    }
+  ],
+  "style": [],
+  "interactions": []
+}
