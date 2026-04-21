@@ -1,15 +1,21 @@
 {
   "name": "Embudo de Ventas Senda",
+  "organization": "Senda",
   "description": "Embudo de ventas con porcentajes en cascada",
+  "logoUrl": "https://storage.googleapis.com/looker-embudo-senda/icon.png",
+  "packageUrl": "https://storage.googleapis.com/looker-embudo-senda",
+  "supportUrl": "https://storage.googleapis.com/looker-embudo-senda",
   "devMode": false,
-  "components": [{
-    "id": "embudo",
-    "name": "Embudo de Ventas",
-    "description": "Embudo con % cascada",
-    "iconUrl": "https://storage.googleapis.com/looker-embudo-senda/icon.png",
-    "resource": {
-      "js": "https://storage.googleapis.com/looker-embudo-senda/embudo.js",
-      "config": "https://storage.googleapis.com/looker-embudo-senda/embudo.json"
+  "components": [
+    {
+      "id": "embudo",
+      "name": "Embudo de Ventas",
+      "description": "Embudo con porcentajes en cascada",
+      "iconUrl": "https://storage.googleapis.com/looker-embudo-senda/icon.png",
+      "resource": {
+        "js": "gs://looker-embudo-senda/embudo.js",
+        "config": "gs://looker-embudo-senda/embudo.json"
+      }
     }
-  }]
+  ]
 }
