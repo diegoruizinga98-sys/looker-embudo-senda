@@ -1,5 +1,21 @@
 var dscc = require('@google/dscc');
 
+function extractData(data) {
+  var rows = (data && data.tables && data.tables.DEFAULT) || [];
+  var result = {
+    investment: null,
+    counts: [0, 0, 0, 0, 0],
+    stages: ['Prospectos', 'Proformas', 'Visitas', 'Separaciones', 'Ventas']
+  };
+  if (rows.length === 0) return result;
+  var r = rows[0];
+  var keys = ['count', 'count2', 'count3', 'count4', 'count5'];
+  keys.forEach(function(k, i) {
+    if (r[k] && r[k][0] != null) result.counts[i] = Number(r[k][0]);
+  });
+  return result;
+}
+
 function drawViz(data) {
   document.body.innerHTML = '';
   document.body.style.margin = '0';
@@ -8,16 +24,14 @@ function drawViz(data) {
   document.body.style.backgroundColor = '#ffffff';
   document.body.style.overflow = 'hidden';
 
-  var row = data.tables.DEFAULT.rows[0];
-  var headers = data.tables.DEFAULT.headers;
-  if (!row) { document.body.innerHTML = '<p>Sin datos</p>'; return; }
+  var extracted = extractData(data);
+  var counts = extracted.counts;
+  var names  = extracted.stages;
 
-  var counts = [], names = [];
-  for (var i = 0; i < 5; i++) {
-    if (row[i] !== null && row[i] !== undefined && row[i] !== '') {
-      counts.push(Number(row[i]));
-      names.push(headers[i].name.replace('Etapa - ', ''));
-    }
+  // Filtrar etapas con valor 0 al final
+  while (counts.length > 1 && counts[counts.length - 1] === 0) {
+    counts.pop();
+    names.pop();
   }
 
   var width  = dscc.getWidth();
@@ -41,33 +55,24 @@ function drawViz(data) {
   document.body.appendChild(svg);
 
   counts.forEach(function(count, i) {
-    var y      = i * (rowH + gapH);
-    var yBot   = y + rowH;
+    var y    = i * (rowH + gapH);
+    var yBot = y + rowH;
 
     var topRatio    = Math.max(0.15, count / counts[0]);
     var nextCount   = counts[i + 1];
     var bottomRatio = nextCount ? Math.max(0.12, nextCount / counts[0]) : topRatio * 0.45;
 
-    var topW    = funnelW * topRatio;
-    var bottomW = funnelW * bottomRatio;
-    var topL    = (funnelW - topW)    / 2;
-    var topR    = topL + topW;
-    var botL    = (funnelW - bottomW) / 2;
-    var botR    = botL + bottomW;
-    var cx      = funnelW / 2;
+    var topW = funnelW * topRatio;
+    var botW = funnelW * bottomRatio;
+    var topL = (funnelW - topW) / 2;
+    var topR = topL + topW;
+    var botL = (funnelW - botW) / 2;
+    var botR = botL + botW;
+    var cx   = funnelW / 2;
 
-    // Curva superior cóncava (control point hacia ARRIBA = y - bulge)
     var topBulge = Math.max(6, topW * 0.07);
-    // Curva inferior convexa (control point hacia ABAJO = yBot + bulge)
-    var botBulge = Math.max(10, bottomW * 0.18);
+    var botBulge = Math.max(10, botW * 0.18);
 
-    //  M topL,y           — punto superior izquierdo
-    //  Q cx,(y-topBulge)  — arco cóncavo hacia arriba
-    //  topR,y             — punto superior derecho
-    //  L botR,yBot        — lado derecho recto
-    //  Q cx,(yBot+botBulge) — arco convexo hacia abajo
-    //  botL,yBot          — punto inferior izquierdo
-    //  Z
     var d = 'M ' + topL + ',' + y +
             ' Q ' + cx + ',' + (y - topBulge) + ' ' + topR + ',' + y +
             ' L ' + botR + ',' + yBot +
@@ -118,7 +123,7 @@ function drawViz(data) {
     ltxt.textContent = names[i];
     svg.appendChild(ltxt);
 
-    // Círculo verde de ratio (solo entre etapas, a la izquierda)
+    // Círculo verde de ratio entre etapas
     if (i > 0) {
       var pct     = Math.round((count / counts[i - 1]) * 100);
       var circleY = y - gapH / 2;
@@ -155,4 +160,4 @@ function drawViz(data) {
   });
 }
 
-dscc.subscribeToData(drawViz, { transform: dscc.tableTransform });
+dscc.subscribeToData(drawViz, { transform: dscc.objectTransform });
