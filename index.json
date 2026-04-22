@@ -12,6 +12,18 @@
       ]
     }
   ],
-  "style": [],
+  "style": [
+    {
+      "id": "colors",
+      "label": "Colores del embudo",
+      "elements": [
+        {"type": "FILL_COLOR", "id": "color1", "label": "Etapa 1", "defaultValue": {"color": "#7DC143"}},
+        {"type": "FILL_COLOR", "id": "color2", "label": "Etapa 2", "defaultValue": {"color": "#5a9e2f"}},
+        {"type": "FILL_COLOR", "id": "color3", "label": "Etapa 3", "defaultValue": {"color": "#3d7a1e"}},
+        {"type": "FILL_COLOR", "id": "color4", "label": "Etapa 4", "defaultValue": {"color": "#285214"}},
+        {"type": "FILL_COLOR", "id": "color5", "label": "Etapa 5", "defaultValue": {"color": "#1a1a1a"}}
+      ]
+    }
+  ],
   "interactions": []
 }
