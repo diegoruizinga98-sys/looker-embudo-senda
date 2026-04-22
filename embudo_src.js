@@ -28,10 +28,20 @@ function drawViz(data) {
   var counts = extracted.counts;
   var names  = extracted.stages;
 
-  // Filtrar etapas con valor 0 al final
-  while (counts.length > 1 && counts[counts.length - 1] === 0) {
-    counts.pop();
-    names.pop();
+  // Filtrar etapas con valor 0 o null en cualquier posición
+  var filtered = { counts: [], names: [] };
+  counts.forEach(function(c, i) {
+    if (c !== null && c !== 0) {
+      filtered.counts.push(c);
+      filtered.names.push(names[i]);
+    }
+  });
+  counts = filtered.counts;
+  names  = filtered.names;
+
+  if (counts.length === 0) {
+    document.body.innerHTML = '<p style="padding:16px">Sin datos</p>';
+    return;
   }
 
   var width  = dscc.getWidth();
@@ -47,7 +57,7 @@ function drawViz(data) {
   var labelX  = funnelW + 14;
   var labelW  = width - funnelW - 20;
 
-  var colors = ['#3d1f7a', '#7e5cc2', '#c4b3e0', '#e8e0f2', '#f5f0ff'];
+  var colors = ['#7DC143', '#5a9e2f', '#3d7a1e', '#285214', '#1a1a1a'];
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width',  width);
@@ -87,7 +97,7 @@ function drawViz(data) {
     // Número grande centrado
     var midY     = y + rowH / 2;
     var fontSize = Math.max(20, Math.min(38, rowH * 0.52));
-    var numColor = (i >= 2) ? '#1f2937' : '#ffffff';
+    var numColor = '#ffffff';
 
     var numTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     numTxt.setAttribute('x',           cx);
